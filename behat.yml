@@ -1,0 +1,13 @@
+default:
+    suites:
+        default:
+            contexts:
+                - App\Tests\Behat\Context\BrowserContext
+                - App\Tests\Behat\Context\CleanSlateContext
+                - App\Tests\Behat\Context\DateTimeContext
+                - App\Tests\Behat\Context\EmailContext
+                - App\Tests\Behat\Context\LoggingContext
+                - App\Tests\Behat\Context\UserContext
+
+    extensions:
+        FriendsOfBehat\SymfonyExtension: {}

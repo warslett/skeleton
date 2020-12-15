@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose --log-level=WARNING --no-ansi run --rm app php -dxdebug.mode=none -dmemory_limit=2G /usr/local/bin/composer "$@"

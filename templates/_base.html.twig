@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Application{% endblock %}</title>
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('css/app') }}
+        {% endblock %}
+    </head>
+    <body>
+
+        {% block messages %}
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endblock %}
+
+        {% block header %}
+            <div class="header bg-primary py-3 mb-3">
+                <div class="container">
+                    <h1 class="text-white">{% block header_h1 %}{% endblock %}</h1>
+                </div>
+            </div>
+        {% endblock %}
+
+        <div class="container">
+            {% block body_content %}{% endblock %}
+        </div>
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('js/app') }}
+        {% endblock %}
+    </body>
+</html>

@@ -1,0 +1,23 @@
+{% extends "form_page.html.twig" %}
+
+{% block form %}
+    {% if app.user %}
+        <p>You are already logged in as <strong>{{ app.user.email }}</strong>. Click <a href="{{ path('user_logout') }}">here</a> to log out.</p>
+    {% else %}
+        <form action="{{ path('user_login') }}" method="post">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" class="form-control" id="email" name="_username" placeholder="Email" value="{{ last_username }}" required />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="_password" placeholder="Password" required />
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+            <button type="submit" class="btn btn-primary mb-4">Log in</button>
+            <p><a href="{{ path('user_registration_initiate') }}">Register for an account</a></p>
+            <p><a href="{{ path('user_forgotten_password') }}">Forgot password?</a></p>
+        </form>
+    {% endif %}
+{% endblock %}

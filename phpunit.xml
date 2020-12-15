@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+        backupGlobals="false"
+        colors="true"
+        bootstrap="vendor/autoload.php"
+        cacheResultFile="var/phpunit-cache"
+>
+  <coverage>
+    <include>
+      <directory>src</directory>
+    </include>
+    <exclude>
+      <!--
+      We are only interested in code coverage in low level abstractions with PHPUnit because Behat is our primary
+      testing tool. Behaviour described in high level abstractions such as actions and console commands is functional
+      and covered by functional tests. Unit testing low level abstractions in isolation with mocks allows us to pinpoint
+      low level issues in the code base. We also exclude development and testing tools such as fixture generators and
+      config/ wiring classes such as form types and repositories
+      -->
+      <directory>src/Action</directory>
+      <directory>src/DataFixture</directory>
+      <directory>src/Form</directory>
+      <directory>src/Domain/Repository</directory>
+      <file>src/Kernel.php</file>
+    </exclude>
+  </coverage>
+  <testsuites>
+    <testsuite name="Project Test Suite">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

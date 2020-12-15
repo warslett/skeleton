@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+docker-compose up -d \
+&& docker-compose run --rm --user=root app_test chgrp -R www-data . \
+&& bin/composer install \
+&& docker-compose exec app php bin/console.php cache:warmup \
+&& docker-compose exec app_test php bin/console.php cache:warmup \
+&& bin/console doctrine:migrations:migrate -n \
+&& bin/console --env=test doctrine:migrations:migrate -n \
+&& bin/yarn install \
+&& bin/encore dev

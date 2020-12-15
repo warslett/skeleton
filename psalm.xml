@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="1"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    cacheDirectory="var/psalm-cache"
+>
+    <projectFiles>
+        <directory name="src" />
+        <directory name="config" />
+        <directory name="tests" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+
+        <!-- allow mixed interfaces -->
+        <MixedArgument errorLevel="suppress" />
+        <MixedArgumentTypeCoercion errorLevel="suppress" />
+        <MixedArrayAccess errorLevel="suppress" />
+        <MixedArrayAssignment errorLevel="suppress" />
+        <MixedArrayOffset errorLevel="suppress" />
+        <MixedAssignment errorLevel="suppress" />
+        <MixedClone errorLevel="suppress" />
+        <MixedFunctionCall errorLevel="suppress" />
+        <MixedInferredReturnType errorLevel="suppress" />
+        <MixedOperand errorLevel="suppress" />
+        <MixedPropertyAssignment errorLevel="suppress" />
+        <MixedPropertyFetch errorLevel="suppress" />
+        <MixedPropertyTypeCoercion errorLevel="suppress" />
+        <MixedReturnStatement errorLevel="suppress" />
+        <MixedReturnTypeCoercion errorLevel="suppress" />
+        <MixedStringOffsetAssignment errorLevel="suppress" />
+        <ImplicitToStringCast errorLevel="suppress" />
+
+        <!-- do not allow method calls on mixed variables (we can type hint these using variable doc blocks) -->
+        <MixedMethodCall errorLevel="error">
+
+            <!-- allow method calls on mixed variables in unit test as mockery returns unspecific types -->
+            <errorLevel type="suppress">
+                <directory name="tests/PHPUnit"/>
+            </errorLevel>
+        </MixedMethodCall>
+
+        <UndefinedInterfaceMethod>
+
+            <!-- getFlashBag defined on concrete class but not interface -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Symfony\Component\HttpFoundation\Session\SessionInterface::getFlashBag"/>
+            </errorLevel>
+        </UndefinedInterfaceMethod>
+
+        <InvalidArgument>
+
+            <!-- Mockery\ExpectationInterface::andReturn is incorrectly typehinted -->
+            <errorLevel type="suppress">
+                <referencedFunction name="Mockery\ExpectationInterface::andReturn"/>
+            </errorLevel>
+        </InvalidArgument>
+        
+        <UndefinedMagicMethod>
+
+            <!-- Mockery\LegacyMockInterface::shouldReceive has | operator but andReturn is defined on Director -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\HigherOrderMessage::andreturn"/>
+            </errorLevel>
+
+            <!-- Mockery\LegacyMockInterface::shouldReceive has | operator but andReturnTrue is defined on Director -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\HigherOrderMessage::andreturntrue"/>
+            </errorLevel>
+
+            <!-- Mockery\LegacyMockInterface::shouldReceive has | operator but andReturnFalse is defined on Director -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\HigherOrderMessage::andreturnfalse"/>
+            </errorLevel>
+
+            <!-- Mockery\Expectation::with not on interface -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\HigherOrderMessage::with"/>
+            </errorLevel>
+
+            <!-- Mockery\LegacyMockInterface::shouldReceive has | operator but returnSelf is defined on Director -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\HigherOrderMessage::andreturnself"/>
+            </errorLevel>
+        </UndefinedMagicMethod>
+
+        <PossiblyUndefinedMethod>
+
+            <!-- Mockery\LegacyMockInterface::shouldReceive has | operator but andReturnTrue is defined on Director -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\ExpectationInterface::andreturntrue"/>
+            </errorLevel>
+
+            <!-- Mockery\LegacyMockInterface::shouldReceive has | operator but andReturnFalse is defined on Director -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\ExpectationInterface::andreturnfalse"/>
+            </errorLevel>
+
+            <!-- Mockery\Expectation::with not on interface -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\ExpectationInterface::with"/>
+            </errorLevel>
+
+            <!-- Mockery\LegacyMockInterface::shouldReceive has | operator but returnSelf is defined on Director -->
+            <errorLevel type="suppress">
+                <referencedMethod name="Mockery\ExpectationInterface::andreturnself"/>
+            </errorLevel>
+        </PossiblyUndefinedMethod>
+        
+        <InternalMethod>
+
+            <!-- tests/PHPUnit/TestCase.php calls internal phpunit method to alter assertion count -->
+            <errorLevel type="suppress">
+                <file name="tests/PHPUnit/TestCase.php"/>
+                <referencedMethod name="PHPUnit\Framework\TestCase::addToAssertionCount"/>
+            </errorLevel>
+        </InternalMethod>
+
+        <InvalidReturnType>
+
+            <!-- Private mock methods on unit tests have return type of mocked class instead of mock -->
+            <errorLevel type="suppress">
+                <directory name="tests/PHPUnit"/>
+            </errorLevel>
+        </InvalidReturnType>
+
+        <InvalidReturnStatement>
+
+            <!-- Private mock methods on unit tests have return type of mocked class instead of mock -->
+            <errorLevel type="suppress">
+                <directory name="tests/PHPUnit"/>
+            </errorLevel>
+        </InvalidReturnStatement>
+
+        <PropertyNotSetInConstructor>
+
+            <!-- PHPUnit TestCase has lots of these unwritten properties -->
+            <errorLevel type="suppress">
+                <directory name="tests/PHPUnit"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
+        
+        <MissingFile>
+            <errorLevel type="suppress">
+                <file name="config/preload.php"/>
+            </errorLevel>
+        </MissingFile>
+    </issueHandlers>
+</psalm>

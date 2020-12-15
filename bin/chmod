@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+find . -type d -exec chmod 775 {} \; \
+&& find . -type f -exec chmod 664 {} \; \
+&& find bin -type f -exec chmod +x {} \; \
+&& find vendor/bin -type f -exec chmod +x {} \;

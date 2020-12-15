@@ -1,0 +1,100 @@
+version: 2
+
+jobs:
+  build:
+    machine: true
+    steps:
+
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+
+      - checkout
+
+      - run:
+          name: "Copy Distributed .env"
+          command: "cp .env.dist .env"
+
+      - run:
+          name: "Build App Image"
+          command: "docker-compose build app"
+
+      - run:
+          name: "Set Group Permissions"
+          command: "docker-compose run --rm --user=root app_test chgrp -R www-data . "
+
+      - run:
+          name: "Install Composer Dependencies"
+          command: "bin/composer install"
+
+      - run:
+          name: "Run Code Sniffer (Coding Standards)"
+          command: "bin/phpcs"
+
+      - run:
+          name: "Run Psalm (PHP Static Analysis)"
+          command: "bin/psalm"
+
+      - run:
+          name: "Run PHPUnit (Unit Tests)"
+          command: "bin/phpunit --coverage-text --coverage-clover var/clover.xml --log-junit var/test-results/phpunit/default.xml"
+
+      - run:
+          name: "Verify Code Coverage"
+          command: "bin/coverage-check var/clover.xml 100"
+
+      - run:
+          name: "Pull Mysql Image"
+          command: "docker pull mysql:8.0"
+
+      - run:
+          name: "Pull Nginx Image"
+          command: "docker pull nginx:stable-alpine"
+
+      - run:
+          name: "Pull Selenium Firefox Image"
+          command: "docker pull selenium/standalone-firefox-debug"
+
+      - run:
+          name: "Start Containers For Functional Testing"
+          command: "docker-compose up -d app_test nginx_test mysql_test selenium_firefox"
+
+      - run:
+          name: "Pull NodeJs Image"
+          command: "docker pull node:15.0.1"
+
+      - run:
+          name: "Install Yarn Dependencies"
+          command: "bin/yarn install --no-progress"
+
+      - run:
+          name: "Run Webpack"
+          command: "bin/encore production"
+
+      - run:
+          name: "Warm up app cache"
+          command: "docker-compose exec app_test php bin/console.php cache:warmup"
+
+      - run:
+          name: "Wait for MySql to be ready"
+          command: "docker-compose --log-level=WARNING --no-ansi run --rm mysql_test bash -c 'i=1 && until mysql -u $MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE --execute \"SHOW DATABASES;\" || [ $i -gt 9 ]; do ((i++)) && sleep 1; done'"
+
+      - run:
+          name: "Run Doctrine Migrations in Test DB"
+          command: "bin/console --env=test doctrine:migrations:migrate -n"
+
+      - run:
+          name: "Run Behat (Functional Tests)"
+          command: "bin/behat --no-snippets --strict --format junit --out var/test-results/behat --format pretty --out std"
+
+      - store_test_results:
+            path: "var/test-results"
+
+      - store_artifacts:
+          path: var/log/test.log
+
+      - store_artifacts:
+          path: var/screenshot

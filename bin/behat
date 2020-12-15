@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose --log-level=WARNING --no-ansi run --rm -e XDEBUG_CONFIG=1 app_test php vendor/bin/behat "$@"

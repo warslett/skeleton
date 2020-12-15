@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose --log-level=WARNING --no-ansi run --rm app php vendor/bin/phpcbf "$@"

@@ -1,0 +1,115 @@
+version: '3.4'
+
+volumes:
+  mysql:
+    driver: local
+  mysql_test:
+    driver: local
+
+services:
+
+  app:
+    image: app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    restart: always
+    user: www-data
+    volumes:
+      - .:/var/www/html
+    env_file:
+      - .env
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - ${MYSQL_PORT}:3306
+    healthcheck:
+      test: 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "SHOW DATABASES;"'
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  nginx:
+    image: nginx:stable-alpine
+    restart: always
+    volumes:
+      - ./public:/usr/share/nginx/html/
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+    links:
+      - app:fastcgi_pass
+    ports:
+      - ${HTTP_PORT}:80
+
+  app_test:
+    image: app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    restart: always
+    user: www-data
+    volumes:
+      - .:/var/www/html
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=test
+      - TEST_HOST=http://nginx_test
+
+  mysql_test:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - mysql_test:/var/lib/mysql
+    ports:
+      - ${MYSQL_TEST_PORT}:3306
+    healthcheck:
+      test: 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "SHOW DATABASES;"'
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  nginx_test:
+    image: nginx:stable-alpine
+    restart: always
+    volumes:
+      - ./public:/usr/share/nginx/html/
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    links:
+      - app_test:fastcgi_pass
+
+  selenium_chrome:
+    image: selenium/standalone-chrome-debug
+    restart: always
+    links:
+      - nginx_test:test
+    ports:
+      - ${SELENIUM_CHROME_VNC_PORT}:5900
+    environment:
+      - VNC_NO_PASSWORD=1
+
+  selenium_firefox:
+    image: selenium/standalone-firefox-debug
+    restart: always
+    links:
+      - nginx_test:test
+    ports:
+      - ${SELENIUM_FIREFOX_VNC_PORT}:5900
+    environment:
+      - VNC_NO_PASSWORD=1
+
+  host_gateway:
+    image: qoomon/docker-host
+    cap_add: [ 'NET_ADMIN', 'NET_RAW' ]
+    restart: always
