@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Action\CreateBlogPostAction;
 use App\Action\Organisation\CreateAction;
 use App\Action\Organisation\RetrieveCollectionJsonAction;
 use App\Action\User\DashboardAction;
@@ -37,4 +38,7 @@ return static function (RoutingConfigurator $routingConfigurator): void {
 
     $routingConfigurator->add('user_password_reset', '/user/password-reset/{token}')
         ->controller(PasswordResetAction::class);
+
+    $routingConfigurator->add('blog_post_create', '/blog/posts/create')
+        ->controller(CreateBlogPostAction::class);
 };
