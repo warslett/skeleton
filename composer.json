@@ -1,4 +1,5 @@
 {
+    "name": "warslett/skeleton",
     "type": "project",
     "license": "proprietary",
     "require": {
